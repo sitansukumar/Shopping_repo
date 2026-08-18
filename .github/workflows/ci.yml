@@ -21,7 +21,7 @@ jobs:
       # 2. Check HTML file exists
       - name: Check HTML file
         run: |
-          test -f index.html
+          test -f shopping.html
           echo "HTML file found"
 
       # 3. Check CSS file exists
