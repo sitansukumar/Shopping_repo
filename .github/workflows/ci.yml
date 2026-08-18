@@ -1,0 +1,48 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Get the source code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Check HTML file exists
+      - name: Check HTML file
+        run: |
+          test -f index.html
+          echo "HTML file found"
+
+      # 3. Check CSS file exists
+      - name: Check CSS file
+        run: |
+          test -f style.css
+          echo "CSS file found"
+
+      # 4. Validate HTML
+      - name: Validate HTML
+        run: |
+          grep -q "<html" index.html
+          grep -q "</html>" index.html
+          echo "HTML validation successful"
+
+      # 5. Check CSS
+      - name: Validate CSS
+        run: |
+          test -s style.css
+          echo "CSS validation successful"
+
+      # 6. CI completed
+      - name: CI Success
+        run: echo "Continuous Integration completed successfully"
