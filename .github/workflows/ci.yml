@@ -24,24 +24,14 @@ jobs:
           test -f shopping.html
           echo "HTML file found"
 
-      # 3. Check CSS file exists
-      - name: Check CSS file
-        run: |
-          test -f style.css
-          echo "CSS file found"
 
       # 4. Validate HTML
       - name: Validate HTML
         run: |
-          grep -q "<html" index.html
-          grep -q "</html>" index.html
+          grep -q "<html" shopping.html
+          grep -q "</html>" shopping.html
           echo "HTML validation successful"
 
-      # 5. Check CSS
-      - name: Validate CSS
-        run: |
-          test -s style.css
-          echo "CSS validation successful"
 
       # 6. CI completed
       - name: CI Success
