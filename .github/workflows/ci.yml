@@ -58,7 +58,7 @@ jobs:
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SHOPPING_SECRET }}" > ~/.ssh/ec2-key
+          printf '%s\n' "${{ secrets.SHOPPING_SECRET }}" > ~/.ssh/ec2-key
           chmod 600 ~/.ssh/ec2-key
 
       # 3. Copy shopping.html to EC2
@@ -67,14 +67,14 @@ jobs:
           scp -o StrictHostKeyChecking=no \
             -i ~/.ssh/ec2-key \
             shopping.html \
-            ec2-user@${{ secrets.SHOPPING_EC2_IP }}:/tmp/index.html
+            sitansu@${{ secrets.SHOPPING_EC2_IP }}:/tmp/index.html
 
       # 4. Replace existing index.html
       - name: Deploy application
         run: |
           ssh -o StrictHostKeyChecking=no \
             -i ~/.ssh/ec2-key \
-            ec2-user@${{ secrets.SHOPPING_EC2_IP }} \
+            sitansu@${{ secrets.SHOPPING_EC2_IP }} \
             "sudo mv /tmp/index.html /var/www/html/index.html"
 
       # 5. CD completed
