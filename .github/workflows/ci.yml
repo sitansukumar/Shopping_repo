@@ -60,6 +60,9 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "${{ secrets.SHOPPING_SECRET }}" > ~/.ssh/ec2-key
           chmod 600 ~/.ssh/ec2-key
+          echo "Checking private key format..."
+          ssh-keygen -y -f ~/.ssh/ec2-key > /dev/null
+          echo "Private key is valid"
 
       # 3. Copy shopping.html to EC2
       - name: Copy application to EC2
