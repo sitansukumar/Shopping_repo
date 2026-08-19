@@ -1,109 +1,23 @@
 name: CI-CD Pipeline
-
 on:
   push:
     branches:
       - main
 
-  pull_request:
-    branches:
-      - main
-
 jobs:
-
-  # =========================
-  # CI - Continuous Integration
-  # =========================
-  build-and-test:
-
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v1
 
-      # 1. Checkout code from GitHub
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
-      # 2. Check HTML file
-      - name: Check HTML file
-        run: |
-          test -f shopping.html
-          echo "shopping.html found"
-
-      # 3. Validate HTML
-      - name: Validate HTML
-        run: |
-          grep -q "<html" shopping.html
-          grep -q "</html>" shopping.html
-          echo "HTML validation successful"
-
-      # 4. CI Success
-      - name: CI Success
-        run: |
-          echo "Continuous Integration completed successfully"
-
-
-  # =========================
-  # CD - Continuous Deployment
-  # =========================
-  deploy:
-
-    runs-on: ubuntu-latest
-
-    needs: build-and-test
-
-    steps:
-
-      # 1. Checkout code
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # 2. Install PuTTY tools
-      - name: Install PuTTY tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y putty-tools
-
-      # 3. Configure SSH key
-      - name: Configure SSH
-        run: |
-          mkdir -p ~/.ssh
-
-          printf '%s\n' "${{ secrets.SHOPPING_SECRET }}" > ~/.ssh/ec2-key.ppk
-
-          chmod 600 ~/.ssh/ec2-key.ppk
-
-          echo "PPK key configured"
-
-      # 4. Test SSH connection
-      - name: Test SSH connection
-        run: |
-          plink \
-            -i ~/.ssh/ec2-key.ppk \
-            -batch \
-            -hostkey "SHA256:XaPTptNSErgjSJ5mwLcwu/zVHGoc9gZOKza666fGFfo" \
-            sitansu@${{ secrets.SHOPPING_EC2_IP }} \
-            "echo SSH connection successful"
-
-      # 5. Copy application to EC2
-      - name: Copy application to EC2
-        run: |
-          pscp \
-            -i ~/.ssh/ec2-key.ppk \
-            -batch \
-            shopping.html \
-            sitansu@${{ secrets.SHOPPING_EC2_IP }}:/var/www/html/
-
-      # 6. Verify deployment
-      - name: Verify deployment
-        run: |
-          plink \
-            -i ~/.ssh/ec2-key.ppk \
-            -batch \
-            sitansu@${{ secrets.SHOPPING_EC2_IP }} \
-            "ls -l /var/www/html/shopping.html"
-
-      # 7. Deployment successful
-      - name: CD Success
-        run: |
-          echo "Application deployed successfully to EC2"
+      - name: Deploy static site to S3 bucket
+        run: aws s3 sync . s3://shopping-new --delete
