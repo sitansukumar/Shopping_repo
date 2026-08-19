@@ -81,6 +81,7 @@ jobs:
           plink \
             -i ~/.ssh/ec2-key.ppk \
             -batch \
+            -hostkey "SHA256:XaPTptNSErgjSJ5mwLcwu/zVHGoc9gZOKza666fGFfo" \
             sitansu@${{ secrets.SHOPPING_EC2_IP }} \
             "echo SSH connection successful"
 
